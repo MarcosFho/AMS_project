@@ -10,7 +10,7 @@ from backend.middlewares.auth_middleware import auth_required
 avaliacao_bp = Blueprint('avaliacao', __name__)
 
 # 🔹 Criar uma nova avaliação
-@avaliacao_bp.route("/avaliacoes", methods=["POST"])
+@avaliacao_bp.route("/api/avaliacoes", methods=["POST"])
 @auth_required
 def post_avaliacao():
     usuario_id = int(request.usuario_id)
@@ -26,7 +26,7 @@ def post_avaliacao():
     return jsonify(resposta), 201
 
 # 🔹 Listar todas as avaliações
-@avaliacao_bp.route("/avaliacoes", methods=["GET"])
+@avaliacao_bp.route("/api/avaliacoes", methods=["GET"])
 def get_avaliacoes():
     avaliacoes = listar_avaliacoes()
     return jsonify([
@@ -35,7 +35,7 @@ def get_avaliacoes():
     ])
 
 # 🔹 Buscar avaliação por ID
-@avaliacao_bp.route("/avaliacoes/<int:id>", methods=["GET"])
+@avaliacao_bp.route("/api/avaliacoes/<int:id>", methods=["GET"])
 def get_avaliacao(id):
     avaliacao = buscar_avaliacao(id)
     if avaliacao:
@@ -44,7 +44,7 @@ def get_avaliacao(id):
     return jsonify({"message": "Avaliação não encontrada"}), 404
 
 # 🔹 Excluir avaliação por ID
-@avaliacao_bp.route("/avaliacoes/<int:id>", methods=["DELETE"])
+@avaliacao_bp.route("/api/avaliacoes/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_avaliacao(id):
     avaliacao = deletar_avaliacao(id)

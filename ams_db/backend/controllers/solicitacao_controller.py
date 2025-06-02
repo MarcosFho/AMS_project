@@ -14,7 +14,7 @@ from backend.models.solicitacao_model import Solicitacao
 solicitacao_bp = Blueprint('solicitacao', __name__)
 
 # 🔹 Criar uma nova solicitação
-@solicitacao_bp.route("/solicitacoes", methods=["POST"])
+@solicitacao_bp.route("/api/solicitacoes", methods=["POST"])
 @auth_required
 def post_solicitacao():
     usuario_id = int(request.usuario_id)
@@ -31,7 +31,7 @@ def post_solicitacao():
     return jsonify(resposta), 201
 
 # 🔹 Listar todas as solicitações do cliente autenticado
-@solicitacao_bp.route("/solicitacoes", methods=["GET"])
+@solicitacao_bp.route("/api/solicitacoes", methods=["GET"])
 @auth_required
 def get_solicitacoes_cliente():
     usuario_id = int(request.usuario_id)
@@ -46,7 +46,7 @@ def get_solicitacoes_cliente():
     ])
 
 # 🔹 Atualizar status de uma solicitação
-@solicitacao_bp.route("/solicitacoes/<int:id>/status", methods=["PUT"])
+@solicitacao_bp.route("/api/solicitacoes/<int:id>/status", methods=["PUT"])
 @auth_required
 def put_status_solicitacao(id):
     dados = request.json
@@ -60,7 +60,7 @@ def put_status_solicitacao(id):
     return jsonify({"message": "Solicitação não encontrada"}), 404
 
 # 🔹 Deletar solicitação por ID
-@solicitacao_bp.route("/solicitacoes/<int:id>", methods=["DELETE"])
+@solicitacao_bp.route("/api/solicitacoes/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_solicitacao(id):
 

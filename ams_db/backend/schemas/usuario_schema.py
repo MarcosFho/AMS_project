@@ -10,7 +10,7 @@ class UsuarioCreateSchema(BaseModel):
     telefone: str
     senha: str = Field(min_length=6)
     tipo_usuario: str  # PRESTADOR, CLIENTE, ADMIN, USUARIO
-    endereco_id: Optional[int] = None
+    id_endereco: Optional[int] = None
     foto_url: Optional[str] = None
     
 
@@ -21,7 +21,7 @@ class UsuarioResponseSchema(BaseModel):
     email: str
     telefone: str
     tipo_usuario_id: int
-    endereco_id: Optional[int] = None
+    id_endereco: Optional[int] = None
     foto_url: Optional[str] = None
     data_criacao: Optional[datetime] = None
     data_atualizacao: Optional[datetime] = None
@@ -35,3 +35,4 @@ class UsuarioUpdateSchema(BaseModel):
     email: Optional[EmailStr]
     telefone: Optional[str]
     foto_url: Optional[str]
+    id_endereco: Optional[int]

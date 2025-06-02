@@ -5,8 +5,6 @@ from backend.utils.auth import verificar_token_jwt
 def auth_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if request.method == "OPTIONS":
-            return '', 200
         auth_header = request.headers.get("Authorization", "")
         token = None
         if auth_header.startswith("Bearer "):

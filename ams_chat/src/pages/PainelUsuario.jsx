@@ -37,8 +37,8 @@ function PainelUsuario() {
           telefone: resUsuario.data.telefone || "",
         });
 
-        if (resUsuario.data.endereco_id) {
-          const resEndereco = await api.get(`/enderecos/${resUsuario.data.endereco_id}`);
+        if (resUsuario.data.id_endereco) {
+          const resEndereco = await api.get(`/enderecos/${resUsuario.data.id_endereco}`);
           setFormEndereco({
             rua: resEndereco.data.rua || "",
             numero: resEndereco.data.numero || "",
@@ -51,12 +51,14 @@ function PainelUsuario() {
         }
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
-        navigate("/login");
+        if (err.response?.status === 401) {
+          navigate("/login");
+        }
       }
     }
 
     fetchDados();
-  }, []);
+  }, [navigate]);
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
@@ -69,19 +71,13 @@ function PainelUsuario() {
   };
 
   const handleSalvar = async () => {
-    console.log("ID do usuário para update:", usuario?.id);
-    if (!usuario?.id) {
-      alert("ID do usuário não encontrado! Faça login novamente.");
-      return;
-    }
-
     try {
-      // Atualiza usuário
-      await api.put(`/usuarios/${usuario.id}`, { ...formUsuario, foto_url: usuario.foto_url || null });
+      if (usuario?.id) {
+        await api.put(`/usuarios/${usuario.id}`, formUsuario);
+      }
 
-      // Atualiza endereço existente ou cria novo e associa ao usuário
-      if (usuario?.endereco_id) {
-        await api.put(`/enderecos/${usuario.endereco_id}`, formEndereco);
+      if (usuario?.id_endereco) {
+        await api.put(`/enderecos/${usuario.id_endereco}`, formEndereco);
       } else {
         const res = await api.post("/enderecos", formEndereco);
         const novoEnderecoId = res.data.id;
@@ -91,17 +87,8 @@ function PainelUsuario() {
       alert("Dados atualizados com sucesso!");
       setEditando(false);
     } catch (error) {
-      if (error.response) {
-        console.error("Erro ao salvar:", error.response.data);
-        const mensagem = error.response.data?.message || "Erro desconhecido";
-        alert(`Erro ao salvar os dados: ${mensagem}`);
-      } else if (error.request) {
-        console.error("Erro na requisição:", error.request);
-        alert("Erro de rede ou servidor inativo.");
-      } else {
-        console.error("Erro desconhecido:", error.message);
-        alert("Erro inesperado: " + error.message);
-      }
+      console.error("Erro ao salvar:", error);
+      alert("Erro ao salvar os dados");
     }
   };
 
@@ -114,7 +101,6 @@ function PainelUsuario() {
         <h1 className="text-2xl font-bold text-green-800 mb-4">Meu Perfil</h1>
 
         <div className="space-y-4">
-          {/* Formulário de Usuário */}
           <div>
             <label className="block">Nome:</label>
             <input
@@ -154,16 +140,7 @@ function PainelUsuario() {
           <hr className="my-4" />
           <h2 className="text-xl font-semibold text-green-700">Endereço</h2>
 
-          {/* Formulário de Endereço */}
-          {[
-            "rua",
-            "numero",
-            "bairro",
-            "cidade",
-            "estado",
-            "cep",
-            "complemento",
-          ].map((campo) => (
+          {Object.keys(formEndereco).map((campo) => (
             <div key={campo}>
               <label className="block capitalize">{campo}:</label>
               <input
@@ -177,7 +154,6 @@ function PainelUsuario() {
             </div>
           ))}
 
-          {/* Botões de ação */}
           <div className="mt-6">
             {!editando ? (
               <button

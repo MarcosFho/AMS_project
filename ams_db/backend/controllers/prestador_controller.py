@@ -46,7 +46,7 @@ def get_prestador(id):
     return jsonify(resposta)
 
 # 🔹 Atualizar prestador por ID
-@prestador_bp.route("/prestadores/<int:id>", methods=["PUT"])
+@prestador_bp.route("/api/prestadores/<int:id>", methods=["PUT"])
 @auth_required
 def put_prestador(id):
     prestador = buscar_prestador(id)
@@ -59,7 +59,7 @@ def put_prestador(id):
     return jsonify(resposta)
 
 # 🔹 Excluir prestador
-@prestador_bp.route("/prestadores/<int:id>", methods=["DELETE"])
+@prestador_bp.route("/api/prestadores/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_prestador(id):
     prestador = buscar_prestador(id)
@@ -70,7 +70,7 @@ def delete_prestador(id):
     return jsonify({"message": "Prestador excluído com sucesso"})
 
 # 🔹 Buscar perfil do prestador logado
-@prestador_bp.route("/prestadores/perfil", methods=["GET"])
+@prestador_bp.route("/api/prestadores/perfil", methods=["GET"])
 @auth_required
 def get_me_prestador():
     usuario_id = int(request.usuario_id)
@@ -81,7 +81,7 @@ def get_me_prestador():
     return jsonify({"message": "Prestador não encontrado"}), 404
 
 # 🔹 Listar prestadores com melhor avaliação
-@prestador_bp.route("/prestadores/top", methods=["GET"])
+@prestador_bp.route("/api/prestadores/top", methods=["GET"])
 def get_top_prestadores():
     limite = request.args.get("limite", default=5, type=int)
     prestadores = listar_top_prestadores(limite=limite)

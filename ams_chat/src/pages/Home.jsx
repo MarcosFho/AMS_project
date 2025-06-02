@@ -115,7 +115,11 @@ function Home() {
             <div ref={scrollRefPrestadores} className="flex overflow-x-auto space-x-6 p-4 scroll-smooth">
               {prestadores.map((p) => (
                 <div key={p.id} className="min-w-[200px] bg-white p-4 rounded shadow hover:shadow-md transition flex-shrink-0">
-                  <img src={p.foto || "/default-user.png"} alt={p.nome} className="h-20 w-20 mx-auto rounded-full border object-cover" />
+                  <img
+                    src={p.foto ? `http://localhost:5000${p.foto}` : "/default-user.png"}
+                    alt={p.nome}
+                    className="h-20 w-20 mx-auto rounded-full border object-cover"
+                  />
                   <p className="mt-3 font-semibold text-center">{p.nome}</p>
                 </div>
               ))}
@@ -156,7 +160,7 @@ function Home() {
 
       {/* Carrossel Fazendas */}
       <section className="px-4 py-12 bg-gray-50">
-        <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">Áreas de Fazenda</h2>
+        <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">Fazendas Disponíveis</h2>
         {fazendas.length === 0 ? (
           <p className="text-center text-gray-500 italic">Nenhuma fazenda cadastrada ainda.</p>
         ) : (
@@ -164,9 +168,27 @@ function Home() {
             <button onClick={() => scrollLeft(scrollRefFazendas)} className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded shadow">◀</button>
             <div ref={scrollRefFazendas} className="flex overflow-x-auto space-x-6 p-4 scroll-smooth">
               {fazendas.map((f) => (
-                <div key={f.id} className="min-w-[250px] bg-white p-5 rounded-xl shadow hover:shadow-md transition flex-shrink-0">
-                  <h3 className="text-lg font-semibold text-green-800 mb-2">{f.nome}</h3>
-                  <p className="text-sm text-gray-700">{f.descricao}</p>
+                <div key={f.id} className="min-w-[250px] bg-white p-4 rounded shadow hover:shadow-md transition flex-shrink-0">
+                  {/* Imagem de capa se houver */}
+                  {f.fotos?.length > 0 ? (
+                    <img
+                      src={f.fotos[0].url_foto}
+                      alt={`Foto da fazenda ${f.nome}`}
+                      className="h-40 w-full object-cover rounded mb-3"
+                    />
+                  ) : (
+                    <div className="h-40 w-full bg-gray-200 flex items-center justify-center text-gray-500 rounded mb-3">
+                      Sem imagem
+                    </div>
+                  )}
+                  <h3 className="text-lg font-semibold text-green-800">{f.nome}</h3>
+                  <p className="text-sm text-gray-700 mt-1">{f.descricao}</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    <strong>Local:</strong> {f.localizacao} <br />
+                    <strong>Atividade:</strong> {f.tipo_atividade} <br />
+                    <strong>Área:</strong> {f.area_total} ha <br />
+                    <strong>Criado em:</strong> {new Date(f.data_criacao).toLocaleDateString()}
+                  </p>
                 </div>
               ))}
             </div>
@@ -174,6 +196,7 @@ function Home() {
           </div>
         )}
       </section>
+
 
       {/* Depoimentos */}
       <section className="py-12 bg-green-50">

@@ -6,7 +6,7 @@ from backend.services.mensagem_service import enviar_mensagem, listar_mensagens
 mensagem_bp = Blueprint("mensagem", __name__)
 
 # 🔹 Enviar uma nova mensagem
-@mensagem_bp.route("/mensagens", methods=["POST"])
+@mensagem_bp.route("/api/mensagens", methods=["POST"])
 @auth_required
 def post_mensagem():
     dados = MensagemCreateSchema(**request.json)
@@ -15,7 +15,7 @@ def post_mensagem():
     return jsonify(MensagemResponseSchema.model_validate(nova).model_dump()), 201
 
 # 🔹 Listar mensagens entre usuário autenticado e outro usuário
-@mensagem_bp.route("/mensagens/<int:id_destinatario>", methods=["GET"])
+@mensagem_bp.route("/api/mensagens/<int:id_destinatario>", methods=["GET"])
 @auth_required
 def get_mensagens(id_destinatario):
     remetente_id = int(request.usuario_id)

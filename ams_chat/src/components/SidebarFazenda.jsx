@@ -1,14 +1,18 @@
 function SidebarDestaques({ onFiltrarCategoria }) {
   const categorias = [
     "Todos os Serviços",
-    "Agronômicos",
-    "Veterinários",
-    "Nutrição",
-    "Serviços Gerais",
-    "Fretes",
-    "Recondicionadores",
-    "Técnicos",
-    "Outros",
+    "Cultivo Agrícola",
+    "Pecuária",
+    "Silvicultura",
+    "Uso de Máquinas Agrícolas",
+    "Aplicação com Drones",
+    "Transporte de Cargas",
+    "Irrigação",
+    "Aragem e Preparo de Solo",
+    "Colheita",
+    "Consultoria Técnica",
+    "Manejo Integrado",
+    "Outro"
   ];
 
   return (

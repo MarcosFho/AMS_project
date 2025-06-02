@@ -14,7 +14,7 @@ class Usuario(Base):
     foto_url = Column(String(255), nullable=True)
 
     # 🔹 Relacionamento com endereço
-    endereco_id = Column(Integer, ForeignKey("endereco.id", ondelete="SET NULL"))
+    id_endereco = Column(Integer, ForeignKey("endereco.id", ondelete="SET NULL"))
     endereco = relationship("Endereco", back_populates="usuarios")
 
     # 🔹 Tipo de usuário
@@ -31,6 +31,7 @@ class Usuario(Base):
 
     # 🔹 Login 1:1 (se ainda for necessário incluir)
     login = relationship("Login", back_populates="usuario", uselist=False, cascade="all, delete-orphan")
+
 
     # 🔹 Auditoria
     data_criacao = Column(TIMESTAMP, server_default=func.now())

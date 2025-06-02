@@ -1,15 +1,14 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
 class FaleConoscoCreateSchema(BaseModel):
-    assunto: Optional[str] = None
-    mensagem: str = Field(..., min_length=1, description="A mensagem é obrigatória e não pode estar vazia")
+    assunto: Optional[str]
+    mensagem: str
 
 class FaleConoscoResponseSchema(FaleConoscoCreateSchema):
     id: int
-    id_usuario: int
-    data_envio: datetime
+    data_envio: datetime  # ✅ Corrigido para datetime
 
     class Config:
-        from_attributes = True
+        from_attributes = True  # ✅ Obrigatório com objetos ORM

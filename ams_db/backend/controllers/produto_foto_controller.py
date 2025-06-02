@@ -21,7 +21,7 @@ def extensao_permitida(nome_arquivo):
     return "." in nome_arquivo and nome_arquivo.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # 🔹 Adicionar foto ao produto via upload (com URL acessível)
-@produto_foto_bp.route("/produtos/<int:id_produto>/fotos", methods=["POST"])
+@produto_foto_bp.route("/api/produtos/<int:id_produto>/fotos", methods=["POST"])
 def post_produto_foto(id_produto):
     if "foto" not in request.files:
         return jsonify({"erro": "Arquivo 'foto' não encontrado"}), 400
@@ -50,7 +50,7 @@ def post_produto_foto(id_produto):
     return jsonify(resposta), 201
 
 # 🔹 Listar fotos de um produto
-@produto_foto_bp.route("/produtos/<int:id_produto>/fotos", methods=["GET"])
+@produto_foto_bp.route("/api/produtos/<int:id_produto>/fotos", methods=["GET"])
 def get_produto_fotos(id_produto):
     fotos = listar_fotos_produto(id_produto)
     return jsonify([
@@ -59,7 +59,7 @@ def get_produto_fotos(id_produto):
     ])
 
 # 🔹 Atualizar uma foto de produto
-@produto_foto_bp.route("/produtos/fotos/<int:id>", methods=["PUT"])
+@produto_foto_bp.route("/api/produtos/fotos/<int:id>", methods=["PUT"])
 @auth_required
 def put_produto_foto(id):
     dados = ProdutoFotoUpdateSchema(**request.json)
@@ -70,7 +70,7 @@ def put_produto_foto(id):
     return jsonify({"message": "Foto de produto não encontrada"}), 404
 
 # 🔹 Deletar foto de produto
-@produto_foto_bp.route("/produtos/fotos/<int:id>", methods=["DELETE"])
+@produto_foto_bp.route("/api/produtos/fotos/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_produto_foto(id):
     foto = deletar_foto_produto(id)
