@@ -11,7 +11,7 @@ from backend.middlewares.auth_middleware import auth_required
 pessoa_juridica_bp = Blueprint('pessoa_juridica', __name__)
 
 # 🔹 Criar pessoa jurídica
-@pessoa_juridica_bp.route("/api/pessoas-juridicas", methods=["POST"])
+@pessoa_juridica_bp.route("/pessoas-juridicas", methods=["POST"])
 def post_pessoa_juridica():
     dados_dict = request.get_json()  # ← pega os dados enviados via JSON
     dados = PessoaJuridicaCreateSchema(**dados_dict)  # ← valida com schema
@@ -20,7 +20,7 @@ def post_pessoa_juridica():
     return jsonify(resposta), 201
 
 # 🔹 Buscar pessoa jurídica por id_usuario
-@pessoa_juridica_bp.route("/api/pessoas-juridicas/<int:id_usuario>", methods=["GET"])
+@pessoa_juridica_bp.route("/pessoas-juridicas/<int:id_usuario>", methods=["GET"])
 def get_pessoa_juridica(id_usuario):
     pessoa_juridica = buscar_pessoa_juridica(id_usuario)
     if pessoa_juridica:
@@ -29,7 +29,7 @@ def get_pessoa_juridica(id_usuario):
     return jsonify({"message": "Pessoa jurídica não encontrada"}), 404
 
 # 🔹 Atualizar pessoa jurídica (parcial)
-@pessoa_juridica_bp.route("/api/pessoas-juridicas/<int:id_usuario>", methods=["PUT"])
+@pessoa_juridica_bp.route("/pessoas-juridicas/<int:id_usuario>", methods=["PUT"])
 @auth_required
 def put_pessoa_juridica(id_usuario):
     dados = PessoaJuridicaUpdateSchema(**request.json)
@@ -40,7 +40,7 @@ def put_pessoa_juridica(id_usuario):
     return jsonify({"message": "Pessoa jurídica não encontrada"}), 404
 
 # 🔹 Excluir pessoa jurídica
-@pessoa_juridica_bp.route("/api/pessoas-juridicas/<int:id_usuario>", methods=["DELETE"])
+@pessoa_juridica_bp.route("/pessoas-juridicas/<int:id_usuario>", methods=["DELETE"])
 @auth_required
 def delete_pessoa_juridica(id_usuario):
     pessoa_juridica = deletar_pessoa_juridica(id_usuario)

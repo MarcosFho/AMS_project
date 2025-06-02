@@ -13,7 +13,7 @@ from backend.utils.crypto import gerar_hash_senha
 login_bp = Blueprint('login', __name__)
 
 # 🔹 Criar login
-@login_bp.route("/api/logins", methods=["POST"])
+@login_bp.route("/logins", methods=["POST"])
 def post_login():
     try:
         dados = LoginCreateSchema(**request.json)
@@ -28,7 +28,7 @@ def post_login():
     return jsonify(resposta), 201
 
 # 🔹 Buscar login por ID de usuário
-@login_bp.route("/api/logins/<int:id_usuario>", methods=["GET"])
+@login_bp.route("/logins/<int:id_usuario>", methods=["GET"])
 def get_login(id_usuario):
     login = buscar_login_por_usuario(id_usuario)
     if login:
@@ -37,7 +37,7 @@ def get_login(id_usuario):
     return jsonify({"message": "Login não encontrado"}), 404
 
 # 🔹 Atualizar login parcialmente
-@login_bp.route("/api/logins/<int:id_usuario>", methods=["PUT"])
+@login_bp.route("/logins/<int:id_usuario>", methods=["PUT"])
 def put_login(id_usuario):
     try:
         dados = LoginUpdateSchema(**request.json)
@@ -51,7 +51,7 @@ def put_login(id_usuario):
     return jsonify({"message": "Login não encontrado"}), 404
 
 # 🔹 Atualizar último login
-@login_bp.route("/api/logins/<int:id_usuario>/ultimo-login", methods=["PUT"])
+@login_bp.route("/logins/<int:id_usuario>/ultimo-login", methods=["PUT"])
 def put_ultimo_login(id_usuario):
     login = atualizar_ultimo_login(id_usuario)
     if login:
@@ -59,7 +59,7 @@ def put_ultimo_login(id_usuario):
     return jsonify({"message": "Login não encontrado"}), 404
 
 # 🔹 Autenticar usuário e retornar token
-@login_bp.route("/api/login/autenticar", methods=["POST"])
+@login_bp.route("/login/autenticar", methods=["POST"])
 def autenticar_login():
     try:
         dados = LoginAuthSchema(**request.json)
@@ -72,7 +72,7 @@ def autenticar_login():
     return jsonify({"message": "Credenciais inválidas"}), 401
 
 # 🔹 Iniciar recuperação de senha (gera token)
-@login_bp.route("/api/login/recuperar", methods=["POST"])
+@login_bp.route("/login/recuperar", methods=["POST"])
 def recuperar_senha():
     dados = request.json
     id_usuario = dados.get("id_usuario")
@@ -83,7 +83,7 @@ def recuperar_senha():
     return jsonify({"token_recuperacao": token}), 200
 
 # 🔹 Redefinir senha com token de recuperação
-@login_bp.route("/api/login/redefinir", methods=["POST"])
+@login_bp.route("/login/redefinir", methods=["POST"])
 def redefinir_senha_route():
     dados = request.json
     token = dados.get("token")
@@ -103,7 +103,7 @@ def redefinir_senha_route():
     return jsonify({"message": "Senha redefinida com sucesso"}), 200
 
 # 🔹 Gerar token de ativação
-@login_bp.route("/api/login/ativar/gerar", methods=["POST"])
+@login_bp.route("/login/ativar/gerar", methods=["POST"])
 def gerar_token_ativacao():
     dados = request.json
     id_usuario = dados.get("id_usuario")
@@ -115,7 +115,7 @@ def gerar_token_ativacao():
     return jsonify({"link_ativacao": link}), 200
 
 # 🔹 Validar token e ativar usuário
-@login_bp.route("/api/login/ativar/<token>", methods=["GET"])
+@login_bp.route("/login/ativar/<token>", methods=["GET"])
 def ativar_usuario_token(token):
     try:
         payload = verificar_token_jwt(token)
@@ -126,6 +126,6 @@ def ativar_usuario_token(token):
         return jsonify({"message": f"Token inválido: {e}"}), 401
 
 # 🔹 Alias para autenticar também via /login
-@login_bp.route("/api/login", methods=["POST"])
+@login_bp.route("/login", methods=["POST"])
 def login_alias():
     return autenticar_login()

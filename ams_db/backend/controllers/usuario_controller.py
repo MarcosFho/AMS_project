@@ -15,19 +15,28 @@ from backend.config.session import get_db
 from backend.middlewares.auth_middleware import auth_required
 import os
 
+# Removendo o prefixo /usuarios do blueprint pois será adicionado no registro
 usuario_bp = Blueprint('usuario', __name__)
 
 # 🔹 Criar um novo usuário com login
-@usuario_bp.route("/api/usuarios", methods=["POST"])
+@usuario_bp.route("/usuarios", methods=["POST"])
 def post_usuario():
     try:
-        form_data = request.form.to_dict()
-        if "endereco_id" in form_data and form_data["endereco_id"] == "":
-            form_data["endereco_id"] = None
-        elif "endereco_id" in form_data:
-            form_data["endereco_id"] = int(form_data["endereco_id"])
-        
-        dados = UsuarioCreateSchema(**form_data)
+        # Tenta obter os dados do JSON primeiro, se não houver, usa form-data
+        if request.is_json:
+            dados_dict = request.get_json()
+        else:
+            dados_dict = request.form.to_dict()
+            # Corrige o nome do campo se vier como id_endereco
+            if "id_endereco" in dados_dict:
+                dados_dict["endereco_id"] = dados_dict.pop("id_endereco")
+            
+            if "endereco_id" in dados_dict and dados_dict["endereco_id"] == "":
+                dados_dict["endereco_id"] = None
+            elif "endereco_id" in dados_dict:
+                dados_dict["endereco_id"] = int(dados_dict["endereco_id"])
+
+        dados = UsuarioCreateSchema(**dados_dict)
     except Exception as e:
         return jsonify({"erro": "Dados inválidos", "detalhes": str(e)}), 400
 
@@ -44,10 +53,6 @@ def post_usuario():
         # 🔸 Verifica se o e-mail já está em uso
         if db.query(Usuario).filter(Usuario.email == dados_dict["email"]).first():
             return jsonify({"message": "Email já cadastrado"}), 409
-
-        # 🔸 Corrige campo endereco_id → id_endereco (como esperado pelo model)
-        if "endereco_id" in dados_dict:
-            dados_dict["id_endereco"] = dados_dict.pop("endereco_id")
 
         dados_dict["tipo_usuario_id"] = tipo.id
 
@@ -81,14 +86,14 @@ def post_usuario():
 
 
 # 🔹 Listar todos os usuários
-@usuario_bp.route("/api/usuarios", methods=["GET"])
+@usuario_bp.route("/usuarios", methods=["GET"])
 def get_usuarios():
     usuarios = listar_usuarios()
     return jsonify([UsuarioResponseSchema.model_validate(u).model_dump() for u in usuarios])
 
 
 # 🔹 Buscar usuário por ID
-@usuario_bp.route("/api/usuarios/<int:id>", methods=["GET"])
+@usuario_bp.route("/usuarios/<int:id>", methods=["GET"])
 def get_usuario(id):
     usuario = buscar_usuario(id)
     if usuario:
@@ -97,7 +102,7 @@ def get_usuario(id):
 
 
 # 🔹 Atualizar usuário por ID
-@usuario_bp.route("/api/usuarios/<int:id>", methods=["PUT"])
+@usuario_bp.route("/usuarios/<int:id>", methods=["PUT"])
 @auth_required
 def put_usuario(id):
     try:
@@ -109,7 +114,7 @@ def put_usuario(id):
 
     # Corrige o nome do campo se vier do frontend
     if "endereco_id" in dados_dict:
-        dados_dict["id_endereco"] = dados_dict.pop("endereco_id")
+        dados_dict["endereco_id"] = dados_dict.pop("endereco_id")
 
     usuario = atualizar_usuario(id, dados_dict)
     if usuario:
@@ -118,7 +123,7 @@ def put_usuario(id):
 
 
 # 🔹 Excluir usuário por ID
-@usuario_bp.route("/api/usuarios/<int:id>", methods=["DELETE"])
+@usuario_bp.route("/usuarios/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_usuario(id):
     usuario = deletar_usuario(id)
@@ -128,22 +133,18 @@ def delete_usuario(id):
 
 
 # 🔹 Perfil autenticado
-@usuario_bp.route("/api/usuarios/perfil", methods=["GET"])
+@usuario_bp.route("/usuarios/perfil", methods=["GET", "OPTIONS"])
 @auth_required
 def perfil_usuario():
     usuario_id = request.usuario_id
     return jsonify({"mensagem": f"Usuário autenticado: {usuario_id}"}), 200
 
-# 🔹 Obter dados do usuário autenticado
-@usuario_bp.route("/api/usuarios/me", methods=["GET"])
+
+@usuario_bp.route("/usuarios/me", methods=["GET", "OPTIONS"])
 @auth_required
-def get_usuario_autenticado():
+def usuario_me():
     usuario_id = request.usuario_id
-
-    with get_db() as db:
-        usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
-
-        if not usuario:
-            return jsonify({"erro": "Usuário não encontrado"}), 404
-
-        return jsonify(UsuarioResponseSchema.model_validate(usuario).model_dump()), 200
+    usuario = buscar_usuario(usuario_id)
+    if usuario:
+        return jsonify(UsuarioResponseSchema.model_validate(usuario).model_dump())
+    return jsonify({"message": "Usuário não encontrado"}), 404

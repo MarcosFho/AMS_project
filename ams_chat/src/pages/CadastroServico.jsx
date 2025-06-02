@@ -8,7 +8,7 @@ const categorias = [
 ];
 
 const tipos = [
-  "Serviço Agrícola", "Transporte", "Veterinário", "Consultoria", "Outros"
+  "Serviço Agrícola", "Transporte", "Veterinário", "Consultoria", "Outro"
 ];
 
 function CadastroServico() {
@@ -16,7 +16,6 @@ function CadastroServico() {
 
   const [form, setForm] = useState({
     tipo: "",
-    outroTipo: "",
     descricao: "",
     preco: "",
     categoria: "",
@@ -33,6 +32,7 @@ function CadastroServico() {
 
   const handleFotosChange = (e) => {
     const arquivos = Array.from(e.target.files);
+
     if (arquivos.length > 6) {
       setErro("Você pode enviar no máximo 6 fotos.");
     } else {
@@ -45,15 +45,14 @@ function CadastroServico() {
     e.preventDefault();
     setErro("");
 
-    const tipoFinal = form.tipo === "Outros" ? form.outroTipo.trim() : form.tipo;
-
-    if (!tipoFinal || !form.descricao || !form.categoria || !form.localizacao) {
+    // Validação mínima
+    if (!form.tipo || !form.descricao || !form.categoria || !form.localizacao) {
       setErro("Preencha todos os campos obrigatórios.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("tipo", tipoFinal);
+    formData.append("tipo", form.tipo);
     formData.append("descricao", form.descricao);
     formData.append("categoria", form.categoria);
     formData.append("localizacao", form.localizacao);
@@ -89,7 +88,6 @@ function CadastroServico() {
         {erro && <div className="text-red-600 mb-4">{erro}</div>}
 
         <form className="space-y-4" onSubmit={handleSubmit} encType="multipart/form-data">
-          {/* Tipo */}
           <div>
             <label className="block font-medium">Tipo do Serviço</label>
             <select
@@ -106,22 +104,6 @@ function CadastroServico() {
             </select>
           </div>
 
-          {/* Campo extra se tipo === "Outros" */}
-          {form.tipo === "Outros" && (
-            <div>
-              <label className="block font-medium">Informe o Tipo do Serviço</label>
-              <input
-                name="outroTipo"
-                value={form.outroTipo}
-                onChange={handleChange}
-                required
-                className="w-full border rounded px-3 py-2"
-                placeholder="Ex: Aplicação com drone, manutenção, etc."
-              />
-            </div>
-          )}
-
-          {/* Categoria */}
           <div>
             <label className="block font-medium">Categoria</label>
             <select
@@ -138,7 +120,6 @@ function CadastroServico() {
             </select>
           </div>
 
-          {/* Localização */}
           <div>
             <label className="block font-medium">Localização</label>
             <input
@@ -151,7 +132,6 @@ function CadastroServico() {
             />
           </div>
 
-          {/* Preço */}
           <div>
             <label className="block font-medium">Preço (opcional)</label>
             <input
@@ -166,7 +146,6 @@ function CadastroServico() {
             />
           </div>
 
-          {/* Descrição */}
           <div>
             <label className="block font-medium">Descrição</label>
             <textarea
@@ -180,7 +159,6 @@ function CadastroServico() {
             />
           </div>
 
-          {/* Fotos */}
           <div>
             <label className="block font-medium">Fotos (até 6 imagens)</label>
             <input
@@ -192,7 +170,6 @@ function CadastroServico() {
             />
           </div>
 
-          {/* Ações */}
           <div className="flex justify-between pt-4">
             <button
               type="button"

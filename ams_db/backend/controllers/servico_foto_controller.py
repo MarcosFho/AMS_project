@@ -12,7 +12,7 @@ from backend.middlewares.auth_middleware import auth_required
 
 servico_foto_bp = Blueprint('servico_foto', __name__)
 
-UPLOAD_FOLDER = "uploads/servico_fotos"
+UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "uploads", "servico_fotos"))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
 
@@ -20,7 +20,7 @@ def extensao_permitida(nome_arquivo):
     return "." in nome_arquivo and nome_arquivo.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # 🔹 Upload de uma foto (com URL pública acessível)
-@servico_foto_bp.route("/api/servicos/<int:id_servico>/fotos", methods=["POST"])
+@servico_foto_bp.route("/servicos/<int:id_servico>/fotos", methods=["POST"])
 @auth_required
 def post_servico_foto(id_servico):
     if "foto" not in request.files:
@@ -36,7 +36,7 @@ def post_servico_foto(id_servico):
     caminho_completo = os.path.join(UPLOAD_FOLDER, filename)
     arquivo.save(caminho_completo)
 
-    url_acessivel = f"http://localhost:5000/{UPLOAD_FOLDER}/{filename}"
+    url_acessivel = f"/uploads/servico_fotos/{filename}"
 
     dados = {
         "id_servico": id_servico,
@@ -49,7 +49,7 @@ def post_servico_foto(id_servico):
     return jsonify(resposta), 201
 
 # 🔹 Listar fotos de um serviço
-@servico_foto_bp.route("/api/servicos/<int:id_servico>/fotos", methods=["GET"])
+@servico_foto_bp.route("/servicos/<int:id_servico>/fotos", methods=["GET"])
 def get_servico_fotos(id_servico):
     fotos = listar_fotos_servico(id_servico)
     return jsonify([
@@ -58,7 +58,7 @@ def get_servico_fotos(id_servico):
     ])
 
 # 🔹 Atualizar foto de serviço (somente descrição ou url_foto, nunca id_servico)
-@servico_foto_bp.route("/api/servicos/fotos/<int:id>", methods=["PUT"])
+@servico_foto_bp.route("/servicos/fotos/<int:id>", methods=["PUT"])
 @auth_required
 def put_servico_foto(id):
     foto = buscar_servico_foto(id)
@@ -71,7 +71,7 @@ def put_servico_foto(id):
     return jsonify(resposta)
 
 # 🔹 Deletar foto de serviço
-@servico_foto_bp.route("/api/servicos/fotos/<int:id>", methods=["DELETE"])
+@servico_foto_bp.route("/servicos/fotos/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_servico_foto(id):
     foto = deletar_foto_servico(id)

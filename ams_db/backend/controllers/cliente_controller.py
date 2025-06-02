@@ -11,7 +11,7 @@ from backend.models.cliente_model import Cliente
 cliente_bp = Blueprint('cliente', __name__)
 
 # 🔹 Criar um novo cliente
-@cliente_bp.route("/api/clientes", methods=["POST"])
+@cliente_bp.route("/clientes", methods=["POST"])
 def post_cliente():
     dados = ClienteCreateSchema(**request.json)
     dados_dict = dados.dict()
@@ -28,7 +28,7 @@ def post_cliente():
     return jsonify(resposta), 201
 
 # 🔹 Listar todos os clientes
-@cliente_bp.route("/api/clientes", methods=["GET"])
+@cliente_bp.route("/clientes", methods=["GET"])
 def get_clientes():
     clientes = listar_clientes()
     return jsonify([
@@ -37,7 +37,7 @@ def get_clientes():
     ])
 
 # 🔹 Buscar cliente logado (perfil)
-@cliente_bp.route("/api/clientes/perfil", methods=["GET"])
+@cliente_bp.route("/clientes/perfil", methods=["GET"])
 @auth_required
 def get_me_cliente():
     usuario_id = int(request.usuario_id)
@@ -48,7 +48,7 @@ def get_me_cliente():
     return jsonify({"message": "Cliente não encontrado"}), 404
 
 # 🔹 Buscar cliente por ID específico
-@cliente_bp.route("/api/clientes/<int:id>", methods=["GET"])
+@cliente_bp.route("/clientes/<int:id>", methods=["GET"])
 @auth_required
 def get_cliente(id):
     cliente = buscar_cliente(id)
@@ -58,7 +58,7 @@ def get_cliente(id):
     return jsonify({"message": "Cliente não encontrado"}), 404
 
 # 🔹 Atualizar cliente por ID
-@cliente_bp.route("/api/clientes/<int:id>", methods=["PUT"])
+@cliente_bp.route("/clientes/<int:id>", methods=["PUT"])
 @auth_required
 def put_cliente(id):
     dados = ClienteCreateSchema(**request.json)
@@ -69,7 +69,7 @@ def put_cliente(id):
     return jsonify({"message": "Cliente não encontrado"}), 404
 
 # 🔹 Excluir cliente por ID
-@cliente_bp.route("/api/clientes/<int:id>", methods=["DELETE"])
+@cliente_bp.route("/clientes/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_cliente(id):
     cliente = deletar_cliente(id)

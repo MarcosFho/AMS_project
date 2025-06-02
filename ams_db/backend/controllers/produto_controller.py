@@ -11,7 +11,7 @@ from backend.middlewares.auth_middleware import auth_required
 produto_bp = Blueprint('produto', __name__)
 
 # 🔹 Criar produto
-@produto_bp.route("/api/produtos", methods=["POST"])
+@produto_bp.route("/produtos", methods=["POST"])
 def post_produto():
     dados = ProdutoCreateSchema(**request.json)
     produto = criar_produto(dados.dict())
@@ -19,7 +19,7 @@ def post_produto():
     return jsonify(resposta), 201
 
 # 🔹 Listar todos os produtos
-@produto_bp.route("/api/produtos", methods=["GET"])
+@produto_bp.route("/produtos", methods=["GET"])
 def get_produtos():
     produtos = listar_produtos()
     return jsonify([
@@ -28,7 +28,7 @@ def get_produtos():
     ])
 
 # 🔹 Buscar produto por ID
-@produto_bp.route("/api/produtos/<int:id>", methods=["GET"])
+@produto_bp.route("/produtos/<int:id>", methods=["GET"])
 def get_produto(id):
     produto = buscar_produto(id)
     if produto:
@@ -37,7 +37,7 @@ def get_produto(id):
     return jsonify({"message": "Produto não encontrado"}), 404
 
 # 🔹 Atualizar produto por ID
-@produto_bp.route("/api/produtos/<int:id>", methods=["PUT"])
+@produto_bp.route("/produtos/<int:id>", methods=["PUT"])
 @auth_required
 def put_produto(id):
     dados = ProdutoUpdateSchema(**request.json)
@@ -49,7 +49,7 @@ def put_produto(id):
     return jsonify({"message": "Produto não encontrado"}), 404
 
 # 🔹 Excluir produto por ID
-@produto_bp.route("/api/produtos/<int:id>", methods=["DELETE"])
+@produto_bp.route("/produtos/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_produto(id):
     produto = deletar_produto(id)

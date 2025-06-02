@@ -1,7 +1,6 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SidebarDestaques from "../components/SidebarDestaques";
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -10,10 +9,11 @@ function Servicos() {
   const [servicos, setServicos] = useState([]);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
+  const [usuarioLogadoId, setUsuarioLogadoId] = useState(null);
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
+    // Busca serviços com ou sem filtro
     const fetchServicos = async () => {
       try {
         const response = await api.get("/servicos", {
@@ -28,15 +28,16 @@ function Servicos() {
   }, [busca]);
 
   useEffect(() => {
-    async function fetchUsuario() {
+    // Verifica usuário logado
+    const fetchUsuarioLogado = async () => {
       try {
         const res = await api.get("/usuarios/me");
-        setUsuario(res.data);
-      } catch (e) {
-        // Se não estiver logado, ignora
+        setUsuarioLogadoId(res.data.id);
+      } catch (error) {
+        console.error("Usuário não autenticado.");
       }
-    }
-    fetchUsuario();
+    };
+    fetchUsuarioLogado();
   }, []);
 
   const handleAnunciarServico = () => {
@@ -47,6 +48,36 @@ function Servicos() {
       navigate("/login");
     }
   };
+
+  const handleEditarServico = (servico) => {
+    navigate(`/servicos/editar/${servico.id}`);
+  };
+
+  const handleExcluirServico = async (id) => {
+    if (confirm("Deseja realmente excluir este serviço?")) {
+      try {
+        await api.delete(`/servicos/${id}`);
+        setServicos(servicos.filter((s) => s.id !== id));
+      } catch (error) {
+        console.error("Erro ao excluir serviço:", error);
+        alert("Erro ao excluir o serviço.");
+      }
+    }
+  };
+
+  function getCardImageProps(foto) {
+    const src = foto.url_foto.startsWith("/")
+      ? `http://localhost:5000${foto.url_foto}`
+      : `http://localhost:5000/uploads/servico_fotos/${foto.url_foto}`;
+    return {
+      src,
+      alt: "Foto do serviço",
+      width: 180,
+      height: 140,
+      style: { width: 180, height: 140, objectFit: "cover" },
+      className: "rounded mt-2 mb-3"
+    };
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -83,8 +114,8 @@ function Servicos() {
       <section className="flex flex-col lg:flex-row gap-6 px-4 py-12 bg-gray-50">
         <SidebarDestaques />
 
-        <div className="flex-1 space-y-8">
-          <div className="text-center">
+        <div className="flex-1">
+          <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-green-700 mb-2">
               Lista de Serviços
             </h2>
@@ -94,60 +125,48 @@ function Servicos() {
           {servicos.length === 0 ? (
             <p className="text-center text-gray-500">Nenhum serviço encontrado.</p>
           ) : (
-            servicos.map((servico) => (
-              <div
-                key={servico.id}
-                className="bg-white p-4 rounded shadow hover:shadow-lg transition"
-              >
-                <h3 className="text-xl font-semibold text-green-800">{servico.tipo}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {servicos.map((servico) => (
+                <div
+                  key={servico.id}
+                  className="bg-white p-4 rounded shadow hover:shadow-lg transition"
+                >
+                  <h3 className="text-xl font-semibold text-green-800">{servico.tipo}</h3>
 
-                {servico.fotos && servico.fotos.length > 0 ? (
-                  <img
-                    src={`http://localhost:5000${servico.fotos[0].url_foto}`}
-                    alt="Foto do serviço"
-                    className="w-full h-48 object-cover rounded mt-2 mb-3"
-                  />
-                ) : (
-                  <div className="text-gray-400 italic mt-2 mb-3">Sem fotos disponíveis</div>
-                )}
-                
-                <p className="text-gray-700">{servico.descricao}</p>
-                <p className="text-sm text-gray-500 mt-2">Categoria: {servico.categoria}</p>
-                <p className="text-sm text-gray-500">Local: {servico.localizacao}</p>
-                <p className="text-sm text-gray-500">
-                  Criado em: {servico.data_criacao
-                    ? new Date(servico.data_criacao).toLocaleDateString("pt-BR")
-                    : "—"}
-                </p>
+                  {servico.fotos && servico.fotos.length > 0 ? (
+                    <img {...getCardImageProps(servico.fotos[0])} />
+                  ) : (
+                    <div className="text-gray-400 italic mt-2 mb-3">Sem fotos disponíveis</div>
+                  )}
 
-                {/* Botões só para o dono */}
-                {usuario && servico.id_usuario === usuario.id && (
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      onClick={() => navigate(`/servicos/editar/${servico.id}`)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (window.confirm("Tem certeza que deseja excluir este serviço?")) {
-                          try {
-                            await api.delete(`/servicos/${servico.id}`);
-                            setServicos(servicos.filter(s => s.id !== servico.id));
-                          } catch (err) {
-                            alert("Erro ao excluir serviço: " + (err?.response?.data?.message || err.message));
-                          }
-                        }
-                      }}
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                    >
-                      Excluir
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
+                  <p className="text-gray-700">{servico.descricao}</p>
+                  <p className="text-sm text-gray-500 mt-2">Categoria: {servico.categoria}</p>
+                  <p className="text-sm text-gray-500">Local: {servico.localizacao}</p>
+                  <p className="text-sm text-gray-500">
+                    Criado em: {servico.data_criacao
+                      ? new Date(servico.data_criacao).toLocaleDateString("pt-BR")
+                      : "—"}
+                  </p>
+
+                  {servico.id_usuario === usuarioLogadoId && (
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={() => handleEditarServico(servico)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleExcluirServico(servico.id)}
+                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </section>

@@ -9,7 +9,7 @@ from backend.middlewares.auth_middleware import auth_required
 endereco_bp = Blueprint('endereco', __name__)
 
 # 🔹 Criar endereço
-@endereco_bp.route("/api/enderecos", methods=["POST"])
+@endereco_bp.route("/enderecos", methods=["POST"])
 def post_endereco():
     dados = EnderecoCreateSchema(**request.json)
     endereco = criar_endereco(dados.dict())
@@ -17,7 +17,7 @@ def post_endereco():
     return jsonify(resposta), 201
 
 # 🔹 Buscar endereço por ID
-@endereco_bp.route("/api/enderecos/<int:id>", methods=["GET"])
+@endereco_bp.route("/enderecos/<int:id>", methods=["GET"])
 def get_endereco(id):
     endereco = buscar_endereco(id)
     if endereco:
@@ -26,7 +26,7 @@ def get_endereco(id):
     return jsonify({"message": "Endereço não encontrado"}), 404
 
 # 🔹 Atualizar endereço
-@endereco_bp.route("/api/enderecos/<int:id>", methods=["PUT"])
+@endereco_bp.route("/enderecos/<int:id>", methods=["PUT"])
 @auth_required
 def put_endereco(id):
     dados = EnderecoUpdateSchema(**request.json)
@@ -38,7 +38,7 @@ def put_endereco(id):
     return jsonify({"message": "Endereço não encontrado"}), 404
 
 # 🔹 Excluir endereço
-@endereco_bp.route("/api/enderecos/<int:id>", methods=["DELETE"])
+@endereco_bp.route("/enderecos/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_endereco(id):
     endereco = deletar_endereco(id)

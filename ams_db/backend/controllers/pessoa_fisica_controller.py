@@ -13,7 +13,7 @@ from backend.middlewares.auth_middleware import auth_required
 pessoa_fisica_bp = Blueprint('pessoa_fisica', __name__)
 
 # 🔹 Criar pessoa física
-@pessoa_fisica_bp.route("/api/pessoas-fisicas", methods=["POST"])
+@pessoa_fisica_bp.route("/pessoas-fisicas", methods=["POST"])
 def post_pessoa_fisica():
     dados_dict = request.get_json()
     dados_dict["id_usuario"] = int(dados_dict.get("id_usuario"))  # garante que é inteiro
@@ -24,7 +24,7 @@ def post_pessoa_fisica():
     return jsonify(resposta), 201
 
 # 🔹 Buscar pessoa física por id_usuario
-@pessoa_fisica_bp.route("/api/pessoas-fisicas/<int:id_usuario>", methods=["GET"])
+@pessoa_fisica_bp.route("/pessoas-fisicas/<int:id_usuario>", methods=["GET"])
 def get_pessoa_fisica(id_usuario):
     pessoa_fisica = buscar_pessoa_fisica(id_usuario)
     if pessoa_fisica:
@@ -33,7 +33,7 @@ def get_pessoa_fisica(id_usuario):
     return jsonify({"message": "Pessoa física não encontrada"}), 404
 
 # 🔹 Atualizar parcialmente pessoa física (sem permitir update de id_usuario)
-@pessoa_fisica_bp.route("/api/pessoas-fisicas/<int:id_usuario>", methods=["PUT"])
+@pessoa_fisica_bp.route("/pessoas-fisicas/<int:id_usuario>", methods=["PUT"])
 @auth_required
 def put_pessoa_fisica(id_usuario):
     dados = PessoaFisicaUpdateSchema(**request.json)
@@ -44,7 +44,7 @@ def put_pessoa_fisica(id_usuario):
     return jsonify({"message": "Pessoa física não encontrada"}), 404
 
 # 🔹 Excluir pessoa física
-@pessoa_fisica_bp.route("/api/pessoas-fisicas/<int:id_usuario>", methods=["DELETE"])
+@pessoa_fisica_bp.route("/pessoas-fisicas/<int:id_usuario>", methods=["DELETE"])
 @auth_required
 def delete_pessoa_fisica(id_usuario):
     pessoa_fisica = deletar_pessoa_fisica(id_usuario)

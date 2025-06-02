@@ -28,8 +28,8 @@ def atualizar_servico(id, dados_servico, db):
     return servico
 
 # 🔹 Excluir um serviço pelo ID
-def deletar_servico(id, usuario_id, db):
-    servico = db.query(Servico).filter(Servico.id == id, Servico.id_usuario == usuario_id).first()
+def deletar_servico(id, db):
+    servico = db.query(Servico).filter(Servico.id == id).first()
     if servico:
         db.delete(servico)
         db.commit()

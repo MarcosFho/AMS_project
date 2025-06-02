@@ -11,7 +11,7 @@ from backend.middlewares.auth_middleware import auth_required
 loja_bp = Blueprint('loja', __name__)
 
 # 🔹 Criar nova loja
-@loja_bp.route("/api/lojas", methods=["POST"])
+@loja_bp.route("/lojas", methods=["POST"])
 def post_loja():
     dados = LojaCreateSchema(**request.json)
     dados_dict = dados.dict()
@@ -22,7 +22,7 @@ def post_loja():
     return jsonify(resposta), 201
 
 # 🔹 Listar todas as lojas
-@loja_bp.route("/api/lojas", methods=["GET"])
+@loja_bp.route("/lojas", methods=["GET"])
 def get_lojas():
     lojas = listar_lojas()
     return jsonify([
@@ -31,7 +31,7 @@ def get_lojas():
     ])
 
 # 🔹 Buscar loja por ID
-@loja_bp.route("/api/lojas/<int:id>", methods=["GET"])
+@loja_bp.route("/lojas/<int:id>", methods=["GET"])
 def get_loja(id):
     loja = buscar_loja(id)
     if loja:
@@ -40,7 +40,7 @@ def get_loja(id):
     return jsonify({"message": "Loja não encontrada"}), 404
 
 # 🔹 Atualizar loja por ID
-@loja_bp.route("/api/lojas/<int:id>", methods=["PUT"])
+@loja_bp.route("/lojas/<int:id>", methods=["PUT"])
 @auth_required
 def put_loja(id):
     dados = LojaUpdateSchema(**request.json)
@@ -52,7 +52,7 @@ def put_loja(id):
     return jsonify({"message": "Loja não encontrada"}), 404
 
 # 🔹 Excluir loja por ID
-@loja_bp.route("/api/lojas/<int:id>", methods=["DELETE"])
+@loja_bp.route("/lojas/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_loja(id):
     loja = deletar_loja(id)

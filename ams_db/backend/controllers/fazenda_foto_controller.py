@@ -20,7 +20,7 @@ def extensao_permitida(nome_arquivo):
     return "." in nome_arquivo and nome_arquivo.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # 🔹 Adicionar foto à fazenda com URL acessível publicamente
-@fazenda_foto_bp.route("/api/fazendas/<int:id_fazenda>/fotos", methods=["POST"])
+@fazenda_foto_bp.route("/fazendas/<int:id_fazenda>/fotos", methods=["POST"])
 def post_fazenda_foto(id_fazenda):
     if "foto" not in request.files:
         return jsonify({"erro": "Arquivo 'foto' não encontrado"}), 400
@@ -48,7 +48,7 @@ def post_fazenda_foto(id_fazenda):
     return jsonify(resposta), 201
 
 # 🔹 Listar fotos de uma fazenda
-@fazenda_foto_bp.route("/api/fazendas/<int:id_fazenda>/fotos", methods=["GET"])
+@fazenda_foto_bp.route("/fazendas/<int:id_fazenda>/fotos", methods=["GET"])
 def get_fazenda_fotos(id_fazenda):
     fotos = listar_fotos_fazenda(id_fazenda)
     return jsonify([
@@ -57,7 +57,7 @@ def get_fazenda_fotos(id_fazenda):
     ])
 
 # 🔹 Atualizar foto da fazenda
-@fazenda_foto_bp.route("/api/fazendas/fotos/<int:id>", methods=["PUT"])
+@fazenda_foto_bp.route("/fazendas/fotos/<int:id>", methods=["PUT"])
 @auth_required
 def put_fazenda_foto(id):
     dados = FazendaFotoUpdateSchema(**request.json)
@@ -69,7 +69,7 @@ def put_fazenda_foto(id):
     return jsonify({"message": "Foto de fazenda não encontrada"}), 404
 
 # 🔹 Deletar foto da fazenda
-@fazenda_foto_bp.route("/api/fazendas/fotos/<int:id>", methods=["DELETE"])
+@fazenda_foto_bp.route("/fazendas/fotos/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_fazenda_foto(id):
     foto = deletar_foto_fazenda(id)
