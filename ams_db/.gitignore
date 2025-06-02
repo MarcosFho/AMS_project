@@ -1,0 +1,19 @@
+# Ignorar o ambiente virtual
+venv/
+.venv/
+
+# Ignorar o .env real
+.env
+
+.env.local
+
+# Ignorar cache Python
+__pycache__/
+*.pyc
+
+# Ignorar pastas de build
+dist/
+build/
+
+# Ignorar pytest cache
+.pytest_cache/
