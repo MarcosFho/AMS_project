@@ -10,11 +10,12 @@ class Mensagem(Base):
     id_remetente = Column(Integer, ForeignKey("usuario.id", ondelete="CASCADE"), nullable=False)
     id_destinatario = Column(Integer, ForeignKey("usuario.id", ondelete="CASCADE"), nullable=False)
     conteudo = Column(Text, nullable=False)
+    id_servico = Column(Integer, ForeignKey("servico.id"), nullable=True)   # NOVO
+    id_fazenda = Column(Integer, ForeignKey("fazenda.id"), nullable=True)   # NOVO
     data_envio = Column(TIMESTAMP, server_default=func.current_timestamp())
 
-    # 🔁 Relacionamentos explícitos
-    remetente = relationship("Usuario", foreign_keys=[id_remetente], backref="mensagens_enviadas", passive_deletes=True)
-    destinatario = relationship("Usuario", foreign_keys=[id_destinatario], backref="mensagens_recebidas", passive_deletes=True)
+    remetente = relationship("Usuario", foreign_keys=[id_remetente], back_populates="mensagens_enviadas", passive_deletes=True)
+    destinatario = relationship("Usuario", foreign_keys=[id_destinatario], back_populates="mensagens_recebidas", passive_deletes=True)
 
     def __repr__(self):
-        return f"<Mensagem(id={self.id}, de={self.id_remetente}, para={self.id_destinatario})>"
+        return f"<Mensagem(id={self.id}, de={self.id_remetente}, para={self.id_destinatario}, servico={self.id_servico}, fazenda={self.id_fazenda})>"

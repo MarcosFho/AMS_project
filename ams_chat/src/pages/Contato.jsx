@@ -7,6 +7,7 @@ function Contato() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [assunto, setAssunto] = useState("");
   const [mensagem, setMensagem] = useState("");
   const [status, setStatus] = useState(null);
 
@@ -18,6 +19,7 @@ function Contato() {
         nome,
         email,
         telefone,
+        assunto,
         mensagem,
       });
 
@@ -25,6 +27,7 @@ function Contato() {
       setNome("");
       setEmail("");
       setTelefone("");
+      setAssunto("");
       setMensagem("");
     } catch (error) {
       const msg = error.response?.data?.message || "Erro ao enviar mensagem.";
@@ -86,6 +89,14 @@ function Contato() {
               className="w-full border border-gray-300 p-3 rounded bg-green-100 placeholder-gray-600"
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
+            />
+            <textarea
+              placeholder="Assunto"
+              rows="1"
+              className="w-full border border-gray-300 p-3 rounded bg-green-100 placeholder-gray-600"
+              value={assunto}
+              onChange={(e) => setAssunto(e.target.value)}
+              required
             />
             <textarea
               placeholder="MENSAGEM"

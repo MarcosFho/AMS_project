@@ -3,13 +3,13 @@ from middlewares.auth_middleware import auth_required
 from backend.schemas.solicitacao_schema import SolicitacaoCreateSchema, SolicitacaoResponseSchema
 from backend.services.solicitacao_service import (
     criar_solicitacao,
-    listar_solicitacoes_por_cliente,
+    listar_solicitacoes_por_usuario,
     atualizar_status_solicitacao
 )
-from backend.services.cliente_service import buscar_cliente_por_usuario
+from backend.services.mensagem_service import enviar_mensagem
+from backend.services.servico_service import buscar_servico 
 from backend.config.session import get_db
 from backend.models.solicitacao_model import Solicitacao
-
 
 solicitacao_bp = Blueprint('solicitacao', __name__)
 
@@ -18,28 +18,30 @@ solicitacao_bp = Blueprint('solicitacao', __name__)
 @auth_required
 def post_solicitacao():
     usuario_id = int(request.usuario_id)
-
-    # 🔍 Buscar o cliente correspondente ao usuário logado
-    cliente = buscar_cliente_por_usuario(usuario_id)
-    if not cliente:
-        return jsonify({"erro": "Cliente não encontrado para este usuário"}), 404
-
     dados = SolicitacaoCreateSchema(**request.json)
-    solicitacao = criar_solicitacao(id_cliente=cliente.id, id_servico=dados.id_servico)
+    solicitacao = criar_solicitacao(id_usuario=usuario_id, id_servico=dados.id_servico)
+
+    # Buscar serviço para enviar mensagem automática
+    with get_db() as db:
+        servico = buscar_servico(dados.id_servico, db)   # <--- passe o db aqui!
+        if servico:
+            id_remetente = usuario_id
+            id_destinatario = servico.id_usuario
+            conteudo = "Olá! Gostaria de conversar sobre o seu serviço."
+            try:
+                enviar_mensagem(id_remetente, id_destinatario, conteudo)
+            except Exception as e:
+                print("Erro ao enviar mensagem automática:", e)
 
     resposta = SolicitacaoResponseSchema.model_validate(solicitacao).model_dump()
     return jsonify(resposta), 201
 
-# 🔹 Listar todas as solicitações do cliente autenticado
+# 🔹 Listar todas as solicitações do usuário autenticado
 @solicitacao_bp.route("/solicitacoes", methods=["GET"])
 @auth_required
-def get_solicitacoes_cliente():
+def get_solicitacoes_usuario():
     usuario_id = int(request.usuario_id)
-    cliente = buscar_cliente_por_usuario(usuario_id)
-    if not cliente:
-        return jsonify({"erro": "Cliente não encontrado"}), 404
-
-    solicitacoes = listar_solicitacoes_por_cliente(cliente.id)
+    solicitacoes = listar_solicitacoes_por_usuario(usuario_id)
     return jsonify([
         SolicitacaoResponseSchema.model_validate(s).model_dump()
         for s in solicitacoes
@@ -63,7 +65,6 @@ def put_status_solicitacao(id):
 @solicitacao_bp.route("/solicitacoes/<int:id>", methods=["DELETE"])
 @auth_required
 def delete_solicitacao(id):
-
     with get_db() as db:
         solicitacao = db.query(Solicitacao).filter(Solicitacao.id == id).first()
         if not solicitacao:

@@ -29,10 +29,18 @@ def post_prestador():
 @prestador_bp.route("/prestadores", methods=["GET"])
 def get_prestadores():
     prestadores = listar_prestadores()
-    return jsonify([
-        PrestadorResponseSchema.model_validate(p).model_dump()
-        for p in prestadores
-    ])
+    resposta = []
+    for p in prestadores:
+        resposta.append({
+            "id": p.id,
+            "nome": p.usuario.nome if p.usuario else "",
+            "foto_url": p.usuario.foto_url if p.usuario else "",
+            "localizacao": p.localizacao,
+            "avaliacao_media": p.avaliacao_media,
+            "categoria": p.categoria,
+            "data_atualizacao": p.data_atualizacao,
+        })
+    return jsonify(resposta)
 
 # 🔹 Buscar prestador por ID
 @prestador_bp.route("/prestadores/<int:id>", methods=["GET"])

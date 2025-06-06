@@ -1,3 +1,4 @@
+from sqlalchemy.orm import joinedload
 from backend.models.prestador_model import Prestador
 from backend.config.session import get_db
 
@@ -18,7 +19,7 @@ def criar_prestador(dados_prestador):
 # 🔹 Listar todos os prestadores
 def listar_prestadores():
     with get_db() as db:
-        return db.query(Prestador).all()
+        return db.query(Prestador).options(joinedload(Prestador.usuario)).all()
 
 # 🔹 Buscar prestador pelo ID (da tabela prestador)
 def buscar_prestador(id):

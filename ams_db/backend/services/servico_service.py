@@ -14,8 +14,8 @@ def listar_servicos(db):
     return db.query(Servico).all()
 
 # 🔹 Buscar serviço pelo ID
-def buscar_servico(id, db):
-    return db.query(Servico).filter(Servico.id == id).first()
+def buscar_servico(id_servico: int, db):
+    return db.query(Servico).filter(Servico.id == id_servico).first()
 
 # 🔹 Atualizar um serviço pelo ID
 def atualizar_servico(id, dados_servico, db):

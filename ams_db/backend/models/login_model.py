@@ -18,7 +18,7 @@ class Login(Base):
     ultimo_login = Column(TIMESTAMP, nullable=True)
 
     # Usuário ativo ou não
-    ativo = Column(Boolean, default=True, nullable=False)
+    ativo = Column(Integer, default=1, nullable=False)
 
     # 🔁 Relacionamento bidirecional com Usuario
     usuario = relationship("Usuario", back_populates="login", passive_deletes=True)

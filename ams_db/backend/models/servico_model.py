@@ -17,8 +17,10 @@ class Servico(Base):
     data_atualizacao = Column(TIMESTAMP, onupdate=func.now())
 
     # 🔁 Relacionamento com Usuario
-    usuario = relationship("Usuario", backref="servicos", passive_deletes=True)
+    usuario = relationship("Usuario", back_populates="servicos", passive_deletes=True)
     avaliacoes = relationship("Avaliacao", back_populates="servico", cascade="all, delete-orphan")
+    solicitacoes = relationship("Solicitacao", back_populates="servico", passive_deletes=True)
+
 
 
     def __repr__(self):

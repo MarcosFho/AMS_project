@@ -134,6 +134,11 @@ function Cadastro() {
       formData.append("tipo_usuario", form.tipo_usuario);
       formData.append("id_endereco", id_endereco);
       if (foto) formData.append("foto", foto);
+      if (form.tipo_usuario === "PRESTADOR") {
+        formData.append("categoria", form.categoria || "");
+        formData.append("localizacao", form.localizacao || "");
+      }
+
 
       // ✅ Debug: verifique os dados antes de enviar
       console.log("📦 Campos enviados no FormData:");
@@ -190,9 +195,10 @@ function Cadastro() {
             <div>
               <label className="block text-gray-700">Tipo de Conta:</label>
               <select className="w-full border rounded-md p-2 mb-2" value={form.tipo_usuario} name="tipo_usuario" onChange={handleChange}>
-                <option value="PRESTADOR">Prestador de Serviço</option>
-                <option value="CLIENTE">Produtor Rural</option>
                 <option value="ADMIN">Administrador do Sistema</option>
+                <option value="CLIENTE">Produtor Rural</option>
+                <option value="LOJA">Lojas Parceiras</option>
+                <option value="PRESTADOR">Prestador de Serviço</option>
                 <option value="USUARIO">Usuário</option>
               </select>
 
@@ -213,6 +219,31 @@ function Cadastro() {
               <input type="text" name="telefone" placeholder="Telefone" className="w-full border rounded-md p-2 mb-2" value={form.telefone} onChange={handleChange} required />
               <input type="password" name="senha" placeholder="Senha" className="w-full border rounded-md p-2 mb-2" value={form.senha} onChange={handleChange} required autoComplete="new-password" />
               <input type="password" name="confirmarSenha" placeholder="Confirmar senha" className="w-full border rounded-md p-2 mb-2" value={form.confirmarSenha} onChange={handleChange} required autoComplete="new-password" />
+
+              {/* Se o usuário for PRESTADOR, mostra campos adicionais */}
+              {form.tipo_usuario === "PRESTADOR" && (
+                <>
+                  <input
+                    type="text"
+                    name="categoria"
+                    placeholder="Categoria do serviço (ex: Drones, Técnico, Fretes)"
+                    className="w-full border rounded-md p-2 mb-2"
+                    value={form.categoria || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="localizacao"
+                    placeholder="Localização/Região de Atuação"
+                    className="w-full border rounded-md p-2 mb-2"
+                    value={form.localizacao || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </>
+              )}
+
 
               {/* Upload de foto */}
               <label className="block text-gray-700 mb-2">Foto de perfil:</label>

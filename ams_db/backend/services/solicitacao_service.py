@@ -2,18 +2,18 @@ from backend.models.solicitacao_model import Solicitacao
 from backend.config.session import get_db
 
 # 🔹 Criar uma nova solicitação
-def criar_solicitacao(id_cliente: int, id_servico: int):
+def criar_solicitacao(id_usuario: int, id_servico: int):
     with get_db() as db:
-        solicitacao = Solicitacao(id_cliente=id_cliente, id_servico=id_servico)
+        solicitacao = Solicitacao(id_usuario=id_usuario, id_servico=id_servico)
         db.add(solicitacao)
         db.commit()              # ✅ grava no banco
         db.refresh(solicitacao)
         return solicitacao
 
-# 🔹 Listar solicitações de um cliente
-def listar_solicitacoes_por_cliente(id_cliente: int):
+# 🔹 Listar solicitações de um usuário
+def listar_solicitacoes_por_usuario(id_usuario: int):
     with get_db() as db:
-        return db.query(Solicitacao).filter(Solicitacao.id_cliente == id_cliente).all()
+        return db.query(Solicitacao).filter(Solicitacao.id_usuario == id_usuario).all()
 
 # 🔹 Alterar status da solicitação (aceitar, recusar, etc.)
 def atualizar_status_solicitacao(id: int, novo_status: str):

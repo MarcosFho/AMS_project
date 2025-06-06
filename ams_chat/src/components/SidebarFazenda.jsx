@@ -1,19 +1,21 @@
-function SidebarDestaques({ onFiltrarCategoria }) {
+function SidebarFazenda({ onFiltrarCategoria }) {
   const categorias = [
     "Todos os Serviços",
-    "Cultivo Agrícola",
-    "Pecuária",
-    "Silvicultura",
-    "Uso de Máquinas Agrícolas",
     "Aplicação com Drones",
-    "Transporte de Cargas",
-    "Irrigação",
     "Aragem e Preparo de Solo",
     "Colheita",
     "Consultoria Técnica",
+    "Cultivo Agrícola",
+    "Irrigação",
     "Manejo Integrado",
-    "Outro"
+    "Pecuária",
+    "Silvicultura",
+    "Todos os Serviços",
+    "Transporte de Cargas",
+    "Uso de Máquinas Agrícolas",
+    "Outros",
   ];
+
 
   return (
     <aside className="hidden lg:block w-64 p-4 bg-green-700 text-white rounded-lg shadow-lg min-h-[650px] -mt-32">
@@ -33,4 +35,4 @@ function SidebarDestaques({ onFiltrarCategoria }) {
   );
 }
 
-export default SidebarDestaques;
+export default SidebarFazenda;

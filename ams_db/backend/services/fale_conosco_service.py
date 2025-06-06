@@ -12,8 +12,28 @@ def criar_fale_conosco(dados_mensagem):
 
 # 🔹 Listar todas as mensagens
 def listar_fale_conosco():
+    from backend.models.usuario_model import Usuario
     with get_db() as db:
-        return db.query(FaleConosco).all()
+        mensagens = db.query(FaleConosco).all()
+        resultado = []
+        for m in mensagens:
+            # Busca usuário relacionado
+            usuario = db.query(Usuario).filter(Usuario.id == m.id_usuario).first()
+            # Monta dicionário com dados extras
+            resultado.append(
+                {
+                    "id": m.id,
+                    "id_usuario": m.id_usuario,
+                    "assunto": m.assunto,
+                    "mensagem": m.mensagem,
+                    "data_envio": m.data_envio,
+                    "nome": usuario.nome if usuario else None,
+                    "email": usuario.email if usuario else None,
+                    "telefone": usuario.telefone if usuario else None,
+                }
+            )
+        return resultado
+
 
 # 🔹 Buscar mensagem por ID
 def buscar_fale_conosco(id):

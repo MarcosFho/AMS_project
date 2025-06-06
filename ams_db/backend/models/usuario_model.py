@@ -3,7 +3,6 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from backend.config.database import Base
 
-
 class Usuario(Base):
     __tablename__ = "usuario"
 
@@ -14,7 +13,7 @@ class Usuario(Base):
     foto_url = Column(String(255), nullable=True)
 
     # 🔹 Relacionamento com endereço
-    endereco_id = Column(Integer, ForeignKey("endereco.id", ondelete="SET NULL"))
+    id_endereco = Column(Integer, ForeignKey("endereco.id", ondelete="SET NULL"))
     endereco = relationship("Endereco", back_populates="usuarios")
 
     # 🔹 Tipo de usuário
@@ -28,9 +27,31 @@ class Usuario(Base):
     prestador = relationship("Prestador", back_populates="usuario", uselist=False)
     loja = relationship("Loja", back_populates="usuario", uselist=False)
     fale_conoscos = relationship("FaleConosco", back_populates="usuario", cascade="all, delete-orphan")
+    solicitacoes = relationship("Solicitacao", back_populates="usuario", passive_deletes=True)
+    servicos = relationship("Servico", back_populates="usuario", cascade="all, delete-orphan")
+
+
 
     # 🔹 Login 1:1 (se ainda for necessário incluir)
     login = relationship("Login", back_populates="usuario", uselist=False, cascade="all, delete-orphan")
+
+    # 🔹 Fazendas
+    fazendas = relationship("Fazenda", back_populates="usuario", cascade="all, delete-orphan")
+    
+        # 🔹 Relacionamentos de mensagens
+    mensagens_enviadas = relationship(
+        "Mensagem",
+        foreign_keys="[Mensagem.id_remetente]",
+        back_populates="remetente",
+        cascade="all, delete-orphan"
+    )
+    mensagens_recebidas = relationship(
+        "Mensagem",
+        foreign_keys="[Mensagem.id_destinatario]",
+        back_populates="destinatario",
+        cascade="all, delete-orphan"
+    )
+
 
     # 🔹 Auditoria
     data_criacao = Column(TIMESTAMP, server_default=func.now())

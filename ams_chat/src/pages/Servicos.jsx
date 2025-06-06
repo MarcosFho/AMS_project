@@ -10,25 +10,25 @@ function Servicos() {
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [usuarioLogadoId, setUsuarioLogadoId] = useState(null);
+  const [categoria, setCategoria] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Busca serviços com ou sem filtro
     const fetchServicos = async () => {
       try {
-        const response = await api.get("/servicos", {
-          params: busca ? { busca } : {},
-        });
+        const params = {};
+        if (busca) params.busca = busca;
+        if (categoria) params.categoria = categoria;
+        const response = await api.get("/servicos", { params });
         setServicos(response.data);
       } catch (error) {
         setErro("Erro ao carregar serviços.");
       }
     };
     fetchServicos();
-  }, [busca]);
+  }, [busca, categoria]);
 
   useEffect(() => {
-    // Verifica usuário logado
     const fetchUsuarioLogado = async () => {
       try {
         const res = await api.get("/usuarios/me");
@@ -43,18 +43,18 @@ function Servicos() {
   const handleAnunciarServico = () => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/servicos/novo");
+      navigate("/cadastroservico");
     } else {
       navigate("/login");
     }
   };
 
   const handleEditarServico = (servico) => {
-    navigate(`/servicos/editar/${servico.id}`);
+    navigate(`/servicoseditar/${servico.id}`);
   };
 
   const handleExcluirServico = async (id) => {
-    if (confirm("Deseja realmente excluir este serviço?")) {
+    if (window.confirm("Deseja realmente excluir este serviço?")) {
       try {
         await api.delete(`/servicos/${id}`);
         setServicos(servicos.filter((s) => s.id !== id));
@@ -77,6 +77,34 @@ function Servicos() {
       style: { width: 180, height: 140, objectFit: "cover" },
       className: "rounded mt-2 mb-3"
     };
+  }
+
+  // Função para solicitar contato
+  const handleEntrarEmContato = async (servico) => {
+    try {
+      await api.post("/solicitacoes", { id_servico: servico.id });
+      navigate(`/chat/${servico.id_usuario}`); // Redireciona para o chat!
+    } catch (error) {
+      alert("Erro ao enviar solicitação. Tente novamente.");
+    }
+  };
+
+  const handleFiltrarCategoria = (cat) => {
+    setCategoria(cat);
+  };
+
+  // UTIL: busca o telefone no local correto do objeto
+  function getTelefone(servico) {
+    // Adapte para seu backend!
+    if (servico.telefone) return servico.telefone;
+    if (servico.prestador && servico.prestador.telefone) return servico.prestador.telefone;
+    if (servico.usuario && servico.usuario.telefone) return servico.usuario.telefone;
+    return "-";
+  }
+
+  function getPreco(servico) {
+    // Adapte se o nome do campo for diferente no backend
+    return servico.preco ? `R$ ${Number(servico.preco).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "Sob consulta";
   }
 
   return (
@@ -112,7 +140,7 @@ function Servicos() {
       </div>
 
       <section className="flex flex-col lg:flex-row gap-6 px-4 py-12 bg-gray-50">
-        <SidebarDestaques />
+        <SidebarDestaques onFiltrarCategoria={handleFiltrarCategoria} />
 
         <div className="flex-1">
           <div className="text-center mb-8">
@@ -143,12 +171,23 @@ function Servicos() {
                   <p className="text-sm text-gray-500 mt-2">Categoria: {servico.categoria}</p>
                   <p className="text-sm text-gray-500">Local: {servico.localizacao}</p>
                   <p className="text-sm text-gray-500">
+                    Preço: <span className="font-semibold text-green-900">
+                      {servico.preco ? `R$ ${Number(servico.preco).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "-"}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Telefone: <span className="font-semibold text-green-900">
+                      {servico.telefone || "-"}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-500">
                     Criado em: {servico.data_criacao
                       ? new Date(servico.data_criacao).toLocaleDateString("pt-BR")
                       : "—"}
                   </p>
 
-                  {servico.id_usuario === usuarioLogadoId && (
+
+                  {servico.id_usuario === usuarioLogadoId ? (
                     <div className="flex gap-2 mt-4">
                       <button
                         onClick={() => handleEditarServico(servico)}
@@ -161,6 +200,15 @@ function Servicos() {
                         className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                       >
                         Excluir
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={() => handleEntrarEmContato(servico)}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                      >
+                        Entrar em contato
                       </button>
                     </div>
                   )}

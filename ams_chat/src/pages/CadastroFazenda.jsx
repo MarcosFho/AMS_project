@@ -22,6 +22,7 @@ function CadastroFazenda() {
 
   const [form, setForm] = useState({
     nome: "",
+    telefone: "",
     descricao: "",
     area_total: "",
     localizacao: "",
@@ -66,6 +67,7 @@ function CadastroFazenda() {
 
     const formData = new FormData();
     formData.append("nome", form.nome);
+    formData.append("telefone", form.telefone); // <-- ADICIONADO
     formData.append("descricao", form.descricao);
     formData.append("area_total", form.area_total);
     formData.append("localizacao", form.localizacao);
@@ -110,6 +112,18 @@ function CadastroFazenda() {
               onChange={handleChange}
               required
               className="w-full border rounded px-3 py-2"
+            />
+          </div>
+
+          {/* Telefone */}
+          <div>
+            <label className="block font-medium">Telefone (opcional)</label>
+            <input
+              name="telefone"
+              value={form.telefone}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+              placeholder="(XX) XXXXX-XXXX"
             />
           </div>
 

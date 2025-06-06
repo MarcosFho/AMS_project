@@ -17,6 +17,21 @@ function EditarServico() {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
 
+  // Opções do select de tipo
+  const tiposDeServico = [
+    "Agronômicos",
+    "Drones",
+    "Fretes",
+    "Maquinários",
+    "Nutrição",
+    "Recondicionadores",
+    "Serviços Gerais",
+    "Técnicos",
+    "Veterinários",
+    "Outros"
+  ];
+
+
   useEffect(() => {
     async function fetchServico() {
       try {
@@ -53,6 +68,10 @@ function EditarServico() {
     }
   };
 
+  const handleVoltar = () => {
+    navigate(-1); // Volta para a página anterior
+  };
+
   if (carregando) return <div>Carregando...</div>;
 
   return (
@@ -61,17 +80,22 @@ function EditarServico() {
       <main className="max-w-xl mx-auto mt-8 p-4 bg-white rounded shadow">
         <h1 className="text-2xl font-bold text-green-800 mb-4">Editar Serviço</h1>
         {erro && <p className="text-red-600 mb-2">{erro}</p>}
+
         <form onSubmit={handleSalvar} className="space-y-4">
           <div>
             <label className="block">Tipo:</label>
-            <input
-              type="text"
+            <select
               name="tipo"
               value={form.tipo}
               onChange={handleChange}
               className="w-full border rounded px-3 py-2"
               required
-            />
+            >
+              <option value="">Selecione o tipo de serviço</option>
+              {tiposDeServico.map((opcao, idx) => (
+                <option key={idx} value={opcao}>{opcao}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block">Descrição:</label>
@@ -115,12 +139,21 @@ function EditarServico() {
               className="w-full border rounded px-3 py-2"
             />
           </div>
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Salvar Alterações
-          </button>
+          <div className="flex gap-4 justify-end mt-6">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              Salvar Alterações
+            </button>
+            <button
+              onClick={handleVoltar}
+              type="button"
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+            >
+              Voltar
+            </button>
+          </div>
         </form>
       </main>
       <Footer />
@@ -128,4 +161,4 @@ function EditarServico() {
   );
 }
 
-export default EditarServico; 
+export default EditarServico;

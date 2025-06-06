@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 const categorias = [
-  "Agronômicos", "Veterinários", "Nutrição",
-  "Serviços Gerais", "Fretes", "Recondicionadores", "Técnicos"
+  "Agrônomo", "Consultoria", "Serviço Agrícola", "Tecnologia", "Transporte", "Veterinário", "Outros"
 ];
 
 const tipos = [
-  "Serviço Agrícola", "Transporte", "Veterinário", "Consultoria", "Outro"
+  "Agronômicos", "Drones", "Fretes", "Maquinários", "Nutrição", "Outros",
+  "Recondicionadores", "Serviços Gerais", "Técnicos", "Veterinários"
 ];
 
 function CadastroServico() {
@@ -45,7 +45,6 @@ function CadastroServico() {
     e.preventDefault();
     setErro("");
 
-    // Validação mínima
     if (!form.tipo || !form.descricao || !form.categoria || !form.localizacao) {
       setErro("Preencha todos os campos obrigatórios.");
       return;
@@ -84,9 +83,7 @@ function CadastroServico() {
     <div className="flex flex-col items-center min-h-screen bg-gray-50 pt-8">
       <div className="bg-white shadow rounded p-8 w-full max-w-lg">
         <h2 className="text-2xl font-bold text-green-700 mb-6">Cadastrar Serviço</h2>
-
         {erro && <div className="text-red-600 mb-4">{erro}</div>}
-
         <form className="space-y-4" onSubmit={handleSubmit} encType="multipart/form-data">
           <div>
             <label className="block font-medium">Tipo do Serviço</label>
@@ -103,7 +100,6 @@ function CadastroServico() {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block font-medium">Categoria</label>
             <select
@@ -119,7 +115,6 @@ function CadastroServico() {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block font-medium">Localização</label>
             <input
@@ -131,7 +126,6 @@ function CadastroServico() {
               placeholder="Ex: Uberlândia - MG"
             />
           </div>
-
           <div>
             <label className="block font-medium">Preço (opcional)</label>
             <input
@@ -145,7 +139,6 @@ function CadastroServico() {
               placeholder="Ex: 150.00"
             />
           </div>
-
           <div>
             <label className="block font-medium">Descrição</label>
             <textarea
@@ -158,7 +151,6 @@ function CadastroServico() {
               placeholder="Detalhe o serviço a ser anunciado"
             />
           </div>
-
           <div>
             <label className="block font-medium">Fotos (até 6 imagens)</label>
             <input
@@ -169,7 +161,6 @@ function CadastroServico() {
               className="w-full"
             />
           </div>
-
           <div className="flex justify-between pt-4">
             <button
               type="button"

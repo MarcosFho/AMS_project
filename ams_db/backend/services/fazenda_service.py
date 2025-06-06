@@ -1,41 +1,73 @@
+import os
+import uuid
+from werkzeug.utils import secure_filename
+from sqlalchemy.orm import joinedload
 from backend.models.fazenda_model import Fazenda
+from backend.models.fazenda_foto_model import FazendaFoto
 from backend.config.session import get_db
 
-# 🔹 Criar uma nova fazenda
-def criar_fazenda(dados_fazenda):
+UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "../static/uploads/fazenda_fotos"))
+
+def criar_fazenda(dados_fazenda, fotos=None):
     with get_db() as db:
         fazenda = Fazenda(**dados_fazenda)
         db.add(fazenda)
-        db.commit()              # ✅ salva no banco
+        db.commit()
         db.refresh(fazenda)
-        return fazenda
+        fazenda_id = fazenda.id
 
-# 🔹 Listar todas as fazendas
+        if fotos:
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            for foto in fotos:
+                if not foto or not foto.filename:
+                    continue
+                filename = f"{uuid.uuid4().hex}_{secure_filename(foto.filename)}"
+                path_arquivo = os.path.join(UPLOAD_FOLDER, filename)
+                foto.save(path_arquivo)
+                url_foto = f"/uploads/fazenda_fotos/{filename}"
+                foto_db = FazendaFoto(id_fazenda=fazenda_id, url_foto=url_foto)
+                db.add(foto_db)
+            db.commit()
+        return fazenda_id
+
 def listar_fazendas():
     with get_db() as db:
-        return db.query(Fazenda).all()
+        return db.query(Fazenda).options(joinedload(Fazenda.fotos)).all()
 
-# 🔹 Buscar fazenda pelo ID
 def buscar_fazenda(id):
     with get_db() as db:
-        return db.query(Fazenda).filter(Fazenda.id == id).first()
+        return db.query(Fazenda).options(joinedload(Fazenda.fotos)).filter(Fazenda.id == id).first()
 
-# 🔹 Atualizar uma fazenda pelo ID
-def atualizar_fazenda(id, dados_fazenda):
+def atualizar_fazenda(id, dados_fazenda, fotos=None):
     with get_db() as db:
         fazenda = db.query(Fazenda).filter(Fazenda.id == id).first()
         if fazenda:
             for key, value in dados_fazenda.items():
                 setattr(fazenda, key, value)
-            db.commit()          # ✅ confirma a atualização
+            # Atualiza fotos apenas se vierem novas
+            if fotos:
+                # Remove fotos antigas
+                db.query(FazendaFoto).filter(FazendaFoto.id_fazenda == fazenda.id).delete()
+                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+                for foto in fotos:
+                    if not foto or not foto.filename:
+                        continue
+                    filename = f"{uuid.uuid4().hex}_{secure_filename(foto.filename)}"
+                    path_arquivo = os.path.join(UPLOAD_FOLDER, filename)
+                    foto.save(path_arquivo)
+                    url_foto = f"/uploads/fazenda_fotos/{filename}"
+                    foto_db = FazendaFoto(id_fazenda=fazenda.id, url_foto=url_foto)
+                    db.add(foto_db)
+            db.commit()
             db.refresh(fazenda)
-        return fazenda
+            return fazenda.id
+        return None
 
-# 🔹 Excluir uma fazenda pelo ID
 def deletar_fazenda(id):
     with get_db() as db:
         fazenda = db.query(Fazenda).filter(Fazenda.id == id).first()
         if fazenda:
             db.delete(fazenda)
-            db.commit()          # ✅ confirma exclusão
-        return fazenda
+            db.commit()
+            return True
+        return False

@@ -23,9 +23,14 @@ function Login() {
         senha,
       });
 
-      const { access_token } = resposta.data;
+      const { access_token, usuario } = resposta.data;
       localStorage.setItem("token", access_token);
       api.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+
+      // Adicione isso (se vier o usuario):
+      if (usuario && usuario.tipo_usuario) {
+        localStorage.setItem("tipo_usuario", usuario.tipo_usuario);
+      }
 
       setMensagem("Login realizado com sucesso!");
       setTipoMensagem("sucesso");
@@ -36,6 +41,7 @@ function Login() {
       setTipoMensagem("erro");
     }
   };
+
 
   return (
     <div
@@ -52,11 +58,10 @@ function Login() {
 
           {mensagem && (
             <div
-              className={`text-center font-medium p-2 rounded mb-4 ${
-                tipoMensagem === "sucesso"
+              className={`text-center font-medium p-2 rounded mb-4 ${tipoMensagem === "sucesso"
                   ? "bg-green-100 text-green-800"
                   : "bg-red-100 text-red-800"
-              }`}
+                }`}
             >
               {mensagem}
             </div>

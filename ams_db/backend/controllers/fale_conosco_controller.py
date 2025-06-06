@@ -35,13 +35,10 @@ def post_fale_conosco():
 
 # 🔹 Listar todas as mensagens de fale conosco
 @fale_conosco_bp.route("/fale-conosco", methods=["GET"])
-@auth_required  # 🔐 Protege a rota com autenticação
+@auth_required
 def listar_fale_conosco_route():
-    mensagens = listar_fale_conosco()
-    return jsonify([
-        FaleConoscoResponseSchema.model_validate(m).model_dump()
-        for m in mensagens
-    ])
+    mensagens = listar_fale_conosco()   # já retorna lista de dicts completos!
+    return jsonify(mensagens)           # retorna direto
 
 # 🔹 Buscar mensagem por ID
 @fale_conosco_bp.route("/fale-conosco/<int:id>", methods=["GET"])

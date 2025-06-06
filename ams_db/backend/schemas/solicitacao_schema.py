@@ -3,11 +3,11 @@ from typing import Optional
 from datetime import datetime
 
 class SolicitacaoCreateSchema(BaseModel):
-    id_servico: int  # o cliente escolhe qual serviço quer solicitar
+    id_servico: int  # o usuário escolhe qual serviço quer solicitar
 
 class SolicitacaoResponseSchema(BaseModel):
     id: int
-    id_cliente: int
+    id_usuario: int      # <-- corrigido para refletir o model novo!
     id_servico: int
     status: str
     data_criacao: datetime

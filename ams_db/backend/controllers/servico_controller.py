@@ -4,6 +4,7 @@ from backend.schemas.servico_schema import (
 )
 from backend.models.servico_model import Servico
 from backend.models.servico_foto_model import ServicoFoto
+from backend.models.usuario_model import Usuario
 from backend.services.servico_service import (
     criar_servico, listar_servicos_filtrados,
     buscar_servico, atualizar_servico, deletar_servico
@@ -11,7 +12,7 @@ from backend.services.servico_service import (
 from backend.config.session import get_db
 from backend.middlewares.auth_middleware import auth_required
 import os
-from sqlalchemy.orm import relationship
+
 
 servico_bp = Blueprint('servico', __name__)
 
@@ -67,12 +68,12 @@ def get_servicos():
     with get_db() as db:
         servicos = listar_servicos_filtrados(db, categoria=categoria, localizacao=localizacao)
         resultado = []
-
         for servico in servicos:
             servico.fotos = db.query(ServicoFoto).filter_by(id_servico=servico.id).all()
+            usuario = db.query(Usuario).filter_by(id=servico.id_usuario).first()
             servico_dict = ServicoResponseSchema.model_validate(servico).model_dump()
+            servico_dict["telefone"] = usuario.telefone if usuario and usuario.telefone else "-"
             resultado.append(servico_dict)
-
         return jsonify(resultado), 200
 
 # 🔹 Buscar serviço por ID

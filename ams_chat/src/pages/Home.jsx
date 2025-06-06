@@ -4,6 +4,40 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import api from "../services/api";
 
+// ATUALIZADA: Suporta 'prestador' com foto_url ou fotos[0].url_foto
+function getCardImageProps(foto, tipo) {
+  if (!foto) return {};
+  let src = "";
+  if (tipo === "servico") {
+    src = foto.url_foto.startsWith("/")
+      ? `http://localhost:5000${foto.url_foto}`
+      : `http://localhost:5000/uploads/servico_fotos/${foto.url_foto}`;
+  } else if (tipo === "fazenda") {
+    src = foto.url_foto.startsWith("/")
+      ? `http://localhost:5000${foto.url_foto}`
+      : `http://localhost:5000/uploads/fazenda_fotos/${foto.url_foto}`;
+  } else if (tipo === "prestador") {
+    // Permite tanto 'foto_url' como 'url_foto'
+    const url = foto.foto_url || foto.url_foto;
+    src = url?.startsWith("/")
+      ? `http://localhost:5000${url}`
+      : `http://localhost:5000/uploads/fotos_usuarios/${url}`;
+  }
+  return {
+    src,
+    alt:
+      tipo === "servico"
+        ? "Foto do serviço"
+        : tipo === "fazenda"
+          ? "Foto da fazenda"
+          : "Foto do prestador",
+    width: 140,
+    height: 140,
+    style: { width: 140, height: 140, objectFit: "cover" },
+    className: "rounded-full mt-2 mb-3 mx-auto border object-cover"
+  };
+}
+
 function Home() {
   const navigate = useNavigate();
   const [prestadores, setPrestadores] = useState([]);
@@ -14,6 +48,8 @@ function Home() {
   const scrollRefPrestadores = useRef(null);
   const scrollRefServicos = useRef(null);
   const scrollRefFazendas = useRef(null);
+
+  const isLogged = !!localStorage.getItem("token");
 
   useEffect(() => {
     async function fetchData() {
@@ -31,7 +67,6 @@ function Home() {
         console.error("Erro ao buscar dados:", error);
       }
     }
-
     fetchData();
   }, []);
 
@@ -94,14 +129,35 @@ function Home() {
 
       {/* CTA */}
       <section className="py-12 bg-green-100 text-center">
-        <h2 className="text-2xl font-bold text-green-800">Tem um serviço ou fazenda para oferecer?</h2>
-        <p className="mt-2 text-gray-700">Cadastre-se agora e comece a faturar com o AMS!</p>
-        <button
-          onClick={() => navigate("/cadastro")}
-          className="mt-4 bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition"
-        >
-          Quero Anunciar
-        </button>
+        <h2 className="text-2xl font-bold text-green-800">
+          Tem um serviço ou fazenda para oferecer?
+        </h2>
+        <p className="mt-2 text-gray-700">
+          Cadastre-se agora e comece a faturar com o AMS!
+        </p>
+        {!isLogged ? (
+          <button
+            onClick={() => navigate("/cadastro")}
+            className="mt-4 bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition"
+          >
+            Quero Anunciar
+          </button>
+        ) : (
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
+            <button
+              onClick={() => navigate("/cadastroservico")}
+              className="bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition"
+            >
+              Anunciar Serviço
+            </button>
+            <button
+              onClick={() => navigate("/cadastrofazenda")}
+              className="bg-green-700 text-white px-6 py-3 rounded-full hover:bg-green-800 transition"
+            >
+              Anunciar Propriedade
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Carrossel Prestadores */}
@@ -113,12 +169,27 @@ function Home() {
           <div className="relative">
             <button onClick={() => scrollLeft(scrollRefPrestadores)} className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded shadow">◀</button>
             <div ref={scrollRefPrestadores} className="flex overflow-x-auto space-x-6 p-4 scroll-smooth">
-              {prestadores.map((p) => (
-                <div key={p.id} className="min-w-[200px] bg-white p-4 rounded shadow hover:shadow-md transition flex-shrink-0">
-                  <img src={p.foto || "/default-user.png"} alt={p.nome} className="h-20 w-20 mx-auto rounded-full border object-cover" />
-                  <p className="mt-3 font-semibold text-center">{p.nome}</p>
-                </div>
-              ))}
+              {prestadores.map((p) => {
+                // Suporta foto_url direto ou array fotos[0].url_foto
+                const fotoPrestador =
+                  (Array.isArray(p.fotos) && p.fotos.length > 0 && p.fotos[0]) ||
+                  (p.foto_url ? { foto_url: p.foto_url } : null);
+
+                return (
+                  <div key={p.id} className="min-w-[200px] bg-white p-4 rounded shadow hover:shadow-md transition flex-shrink-0">
+                    {fotoPrestador ? (
+                      <img {...getCardImageProps(fotoPrestador, "prestador")} />
+                    ) : (
+                      <img
+                        src="/default-user.png"
+                        alt={p.nome}
+                        className="h-20 w-20 mx-auto rounded-full border object-cover"
+                      />
+                    )}
+                    <p className="mt-3 font-semibold text-center">{p.nome}</p>
+                  </div>
+                );
+              })}
             </div>
             <button onClick={() => scrollRight(scrollRefPrestadores)} className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded shadow">▶</button>
           </div>
@@ -134,17 +205,32 @@ function Home() {
           <div className="relative">
             <button onClick={() => scrollLeft(scrollRefServicos)} className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded shadow">◀</button>
             <div ref={scrollRefServicos} className="flex overflow-x-auto space-x-6 p-4 scroll-smooth">
-              {servicos.map((s) => (
-                <div key={s.id} className="min-w-[250px] bg-white p-4 rounded shadow hover:shadow-md transition flex-shrink-0">
-                  <h3 className="text-xl font-semibold text-green-700">{s.tipo}</h3>
-                  <p className="text-sm italic text-gray-500 mt-1">
-                    {s.fotos?.length ? "Com foto" : "Sem fotos disponíveis"}
+              {servicos.map((servico) => (
+                <div key={servico.id} className="min-w-[270px] bg-white p-4 rounded shadow hover:shadow-md transition flex-shrink-0">
+                  <h3 className="text-xl font-semibold text-green-800">{servico.tipo}</h3>
+                  {servico.fotos && servico.fotos.length > 0 ? (
+                    <img {...getCardImageProps(servico.fotos[0], "servico")} />
+                  ) : (
+                    <div className="text-gray-400 italic mt-2 mb-3">Sem fotos disponíveis</div>
+                  )}
+
+                  <p className="text-gray-700">{servico.descricao}</p>
+                  <p className="text-sm text-gray-500 mt-2">Categoria: {servico.categoria}</p>
+                  <p className="text-sm text-gray-500">Local: {servico.localizacao}</p>
+                  <p className="text-sm text-gray-500">
+                    Preço: <span className="font-semibold text-green-900">
+                      {servico.preco ? `R$ ${Number(servico.preco).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "-"}
+                    </span>
                   </p>
-                  <p className="text-gray-700 mt-2">{s.descricao}</p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    <strong>Categoria:</strong> {s.categoria} <br />
-                    <strong>Local:</strong> {s.localizacao} <br />
-                    <strong>Criado em:</strong> {new Date(s.data_criacao).toLocaleDateString()}
+                  <p className="text-sm text-gray-500">
+                    Telefone: <span className="font-semibold text-green-900">
+                      {servico.telefone || "-"}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Criado em: {servico.data_criacao
+                      ? new Date(servico.data_criacao).toLocaleDateString("pt-BR")
+                      : "—"}
                   </p>
                 </div>
               ))}
@@ -153,6 +239,7 @@ function Home() {
           </div>
         )}
       </section>
+
 
       {/* Carrossel Fazendas */}
       <section className="px-4 py-12 bg-gray-50">
@@ -166,7 +253,24 @@ function Home() {
               {fazendas.map((f) => (
                 <div key={f.id} className="min-w-[250px] bg-white p-5 rounded-xl shadow hover:shadow-md transition flex-shrink-0">
                   <h3 className="text-lg font-semibold text-green-800 mb-2">{f.nome}</h3>
-                  <p className="text-sm text-gray-700">{f.descricao}</p>
+                  {f.fotos && f.fotos.length > 0 ? (
+                    <img {...getCardImageProps(f.fotos[0], "fazenda")} />
+                  ) : (
+                    <div className="text-gray-400 italic mt-2 mb-3">Sem fotos disponíveis</div>
+                  )}
+                  <p className="text-gray-700">{f.descricao}</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    {f.area_total && (
+                      <>
+                        <strong>Área Total:</strong> {f.area_total} ha <br />
+                      </>
+                    )}
+                    <strong>Local:</strong> {f.localizacao || "—"} <br />
+                    <strong>Criado em:</strong>{" "}
+                    {f.data_criacao
+                      ? new Date(f.data_criacao).toLocaleDateString("pt-BR")
+                      : "—"}
+                  </p>
                 </div>
               ))}
             </div>

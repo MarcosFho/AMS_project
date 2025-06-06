@@ -4,6 +4,7 @@ from backend.utils.crypto import verificar_senha, gerar_hash_senha
 from backend.config.session import get_db
 from backend.utils.auth import gerar_token_jwt
 from datetime import datetime
+from backend.models.tipo_usuario_model import TipoUsuario
 
 # 🔹 Criar novo login
 def criar_login(dados, db=None):
@@ -12,6 +13,10 @@ def criar_login(dados, db=None):
         db = next(get_db())
         own_session = True
 
+ # Força ativo=1 se não informado
+    if "ativo" not in dados:
+        dados["ativo"] = 1
+        
     login = Login(**dados)
     db.add(login)
 
@@ -58,7 +63,24 @@ def autenticar_usuario(email: str, senha: str) -> str:
         login = db.query(Login).filter(Login.id_usuario == usuario.id).first()
         if login and login.ativo == 1 and verificar_senha(senha, login.senha_hash):
             atualizar_ultimo_login(usuario.id)
-            return gerar_token_jwt({"sub": str(usuario.id)})
+
+            # Pega o nome do tipo de usuário
+            tipo_usuario_nome = None
+            if usuario.tipo_usuario:
+                tipo_usuario_nome = usuario.tipo_usuario.nome  # Relacionamento
+            else:
+                tipo = db.query(TipoUsuario).filter(TipoUsuario.id == usuario.tipo_usuario_id).first()
+                tipo_usuario_nome = tipo.nome if tipo else None
+
+            # Gera token com dados extras!
+            payload = {
+                "sub": str(usuario.id),
+                "tipo_usuario": tipo_usuario_nome,  # <- ESSENCIAL PARA O FRONT
+                "nome": usuario.nome,
+                "email": usuario.email,
+                "foto_url": usuario.foto_url  # opcional, mas útil se quiser
+            }
+            return gerar_token_jwt(payload)   # Use seu método de gerar JWT
         return None
 
 # 🔹 Redefinir senha (com hash)
